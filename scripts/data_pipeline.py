@@ -1,6 +1,48 @@
 import datetime as dt
 import pandas as pd
 from pathlib import Path
+import pandas as pd
+from database import create_connection
+
+def load_data():
+    df = pd.read_csv("data/processed/churn_processed.csv")
+    df["last_purchase"] = pd.to_datetime(df["last_purchase"]).dt.date
+    return df
+
+
+def insert_into_mysql(df):
+    print("Entrou na função de insert")
+
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM customers_churn")
+
+    for _, row in df.iterrows():
+        sql =  """
+            INSERT INTO customers_churn 
+            (customer_unique_id, total_orders, total_revenue, last_purchase,
+             days_since_last_purchase, average_ticket, churn)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (
+            row['customer_unique_id'],
+            row['total_orders'],
+            row['total_revenue'],
+            row['last_purchase'],
+            row['days_since_last_purchase'], 
+            row['average_ticket'],
+            row['churn'],
+        )
+
+        cursor.execute(sql, values)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    print('Dados Inseridos com SUCESSO!')
+
 
 # Diretório raiz do projeto
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,8 +64,7 @@ def inspect_data(df, name):
     print(df.isnull().sum())
 
 # Esse bloco só executa se rodarmos este arquivo diretamente
-if __name__ == "__main__":
-    
+if __name__ == "__main__": 
     #carregar datasets
     customers = load_dataset("olist_customers_dataset.csv")
     orders = load_dataset("olist_orders_dataset.csv")
@@ -60,9 +101,6 @@ if __name__ == "__main__":
     df_final["order_purchase_timestamp"] = pd.to_datetime(
         df_final["order_purchase_timestamp"]
     )
-
-
-
 
     # Criação de métricas por cliente
 
@@ -103,4 +141,10 @@ if __name__ == "__main__":
         BASE_DIR / "data" / "processed" / "churn_processed.csv",
         index=False
     )
+    print("CSV gerado com sucesso!")
+    df = load_data()
+    print("Quantidade de linhas:", len(df))
+    insert_into_mysql(df)
+    print("Script rodou até o final")
+   
 
