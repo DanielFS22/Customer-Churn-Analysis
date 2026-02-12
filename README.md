@@ -1,79 +1,97 @@
-Perfeito — abaixo está o **README já adaptado**, com a **automação em Python integrada de forma natural**, profissional e alinhada ao mercado.
-Você pode **substituir o README atual por este** ou ajustar partes se quiser personalizar depois.
-
----
-
-# 📊 Customer Churn Analysis Using SQL, Python and Power BI
+# 📊 Customer Churn Analysis Using Python, SQL and Power BI
 
 ## 📌 Visão Geral
 
-O cancelamento de clientes (churn) é um dos principais desafios enfrentados por empresas que operam com modelos de assinatura ou relacionamento contínuo. Entender **quem cancela**, **por que cancela** e **quais padrões estão associados a esse comportamento** é essencial para reduzir perdas financeiras e melhorar estratégias de retenção.
+O cancelamento de clientes (churn) é um dos principais desafios enfrentados por empresas que operam com relacionamento contínuo ou recorrência de compra. Entender **quem está deixando de comprar**, **quando isso acontece** e **quais padrões estão associados a esse comportamento** é essencial para reduzir perdas e melhorar estratégias de retenção.
 
-Este projeto foi desenvolvido para **simular um cenário real de mercado**, no qual atuo como **Analista de Dados**, responsável não apenas pela análise e visualização dos dados, mas também pela **automação do preparo dos dados**, garantindo qualidade, consistência e eficiência no processo analítico.
+Este projeto simula um cenário real de mercado onde atuo como **Analista de Dados**, responsável por:
+
+- Construção do pipeline de dados
+- Tratamento e consolidação das bases
+- Criação de métricas estratégicas
+- Persistência em banco relacional
+- Preparação da base para visualização executiva
 
 ---
 
 ## 🎯 Objetivo do Projeto
 
-* Analisar o comportamento de clientes e identificar padrões associados ao churn
-* Comparar características entre clientes ativos e cancelados
-* Gerar insights estratégicos para retenção de clientes
-* Simular um fluxo real de dados, desde o tratamento até a visualização
-* Demonstrar boas práticas de análise e automação de dados
+- Construir um pipeline completo de ETL utilizando Python
+- Consolidar múltiplas tabelas em uma visão única por cliente
+- Criar métricas estratégicas de churn
+- Persistir os dados em banco MySQL
+- Servir como base para um dashboard executivo no Power BI
 
 ---
 
-## 🧠 Perguntas de Negócio Respondidas
+## 🏗️ Arquitetura do Projeto
 
-* Qual é a taxa geral de churn da empresa?
-* Clientes com menor tempo de contrato cancelam mais?
-* O tipo de contrato influencia diretamente no churn?
-* Existe relação entre o valor mensal pago e o cancelamento?
-* Quais perfis de clientes apresentam maior risco de churn?
+```
 
----
+Raw Data → Python (ETL & Feature Engineering) → Processed CSV → MySQL → Power BI (em desenvolvimento)
 
-## 🗂️ Base de Dados
+````
 
-O projeto utiliza um dataset público de churn de clientes, amplamente utilizado para simulações de problemas reais de negócio.
-
-**Principais atributos do dataset:**
-
-* Idade do cliente
-* Tempo de contrato
-* Tipo de contrato/plano
-* Valor mensal
-* Uso de serviços
-* Status de churn (ativo ou cancelado)
-
-📌 Os dados brutos passam por um processo automatizado de tratamento antes da análise.
+O projeto simula um fluxo corporativo real, onde os dados passam por tratamento automatizado antes de serem consumidos para análise.
 
 ---
 
-## 🔄 Automação e Pipeline de Dados (Python)
+## 🔄 Pipeline de Dados (Python + MySQL)
 
-Para simular um ambiente corporativo real, foi desenvolvido um **script em Python** responsável por automatizar o processo de preparação dos dados.
+Foi desenvolvido um pipeline completo em Python responsável pelas etapas de:
 
-### ⚙️ O que a automação faz:
-
-* Leitura dos dados brutos (`raw`)
-* Remoção de duplicidades
-* Tratamento de valores nulos
-* Padronização de categorias
-* Criação de variáveis derivadas (ex: faixas de tempo de contrato e valor mensal)
-* Exportação dos dados tratados (`processed`) prontos para análise
-
-Esse processo reduz erros manuais, melhora a confiabilidade das análises e permite escalabilidade caso o volume de dados aumente.
+### 1️⃣ Extração
+Leitura dos datasets brutos:
+- `customers`
+- `orders`
+- `payments`
 
 ---
 
-## 🛠️ Ferramentas e Tecnologias Utilizadas
+### 2️⃣ Transformação
 
-* **Python (pandas)** — automação, limpeza e transformação dos dados
-* **SQL** — análise exploratória e extração de métricas
-* **Power BI** — criação de dashboards interativos
-* **Excel** — apoio na validação dos dados
-* **GitHub** — versionamento e documentação
+- Merge entre tabelas
+- Conversão de colunas de data
+- Agregação por cliente
+- Criação de métricas estratégicas:
+
+**Métricas criadas:**
+
+- `total_orders`
+- `total_revenue`
+- `last_purchase`
+- `days_since_last_purchase`
+- `average_ticket`
+- `churn` (regra de negócio: cliente com mais de 90 dias sem compra)
+
+```python
+churn = days_since_last_purchase > 90
+````
+
+Essa etapa simula o processo de **feature engineering aplicado a dados de negócio**.
+
+---
+
+### 3️⃣ Carga (Load)
+
+* Geração do dataset tratado: `churn_processed.csv`
+* Inserção automatizada no MySQL
+* Validação da carga via query SQL
+
+Total de registros inseridos: **96.096**
+
+```sql
+SELECT COUNT(*) FROM customers_churn;
+```
+
+---
+
+## 🗄️ Banco de Dados
+
+Banco: `churn_project`
+Tabela: `customers_churn`
+
+A tabela é alimentada diretamente pelo script Python via conexão MySQL, simulando um fluxo de dados empresarial com persistência relacional.
 
 ---
 
@@ -84,18 +102,22 @@ customer-churn-analysis/
 │
 ├── data/
 │   ├── raw/
-│   │   └── churn_raw.csv
-│   ├── processed/
-│   │   └── churn_processed.csv
+│   │   ├── customers.csv
+│   │   ├── orders.csv
+│   │   └── payments.csv
+│   │
+│   └── processed/
+│       └── churn_processed.csv
 │
 ├── scripts/
-│   └── data_pipeline.py
+│   ├── data_pipeline.py
+│   └── database.py
 │
 ├── sql/
-│   └── analysis_queries.sql
+│   └── validation_queries.sql
 │
 ├── dashboard/
-│   └── churn_dashboard.pbix
+│   └── churn_dashboard.pbix (em desenvolvimento)
 │
 ├── requirements.txt
 └── README.md
@@ -103,56 +125,45 @@ customer-churn-analysis/
 
 ---
 
-## 📊 Dashboard
+## 🛠️ Tecnologias Utilizadas
 
-O dashboard foi desenvolvido no Power BI com foco em **clareza**, **objetividade** e **tomada de decisão**, contendo:
-
-* Visão geral da base de clientes
-* Taxa de churn
-* Perfil dos clientes cancelados
-* Comparação entre clientes ativos e cancelados
-* Segmentações por tipo de contrato e valor mensal
-
-📎 *Aqui podem ser adicionadas imagens ou o link do dashboard.*
+* **Python (pandas)** — ETL e feature engineering
+* **MySQL** — Persistência relacional
+* **SQL** — Validação e consultas analíticas
+* **MySQL Workbench** — Gerenciamento do banco
+* **Power BI** — Visualização executiva (em desenvolvimento)
+* **Git & GitHub** — Versionamento
 
 ---
 
-## 💡 Principais Insights
+## 📊 Próxima Etapa: Visualização
 
-* Clientes com contratos mensais apresentam maior taxa de churn
-* O risco de cancelamento é maior nos primeiros meses de contrato
-* Clientes em determinadas faixas de valor mensal possuem maior propensão ao churn
-* A fidelização aumenta conforme o tempo de relacionamento com o cliente
+O próximo passo do projeto é conectar o Power BI diretamente ao banco MySQL para:
 
----
-
-## 📈 Recomendações de Negócio
-
-Com base nos dados analisados, algumas ações estratégicas seriam:
-
-* Incentivar contratos de longo prazo com benefícios adicionais
-* Criar ações de retenção focadas nos primeiros meses de contrato
-* Monitorar clientes com alto valor mensal e curto tempo de relacionamento
-* Desenvolver campanhas personalizadas para perfis de maior risco
+* Construir KPIs estratégicos
+* Criar visão executiva de churn
+* Analisar perfis de risco
+* Simular tomada de decisão orientada a dados
 
 ---
 
-## 🚀 Aprendizados e Competências Desenvolvidas
+## 💡 Competências Demonstradas
 
-* Pensamento analítico orientado a negócio
-* Automação de processos de dados com Python
-* Análise de dados utilizando SQL
-* Criação de dashboards executivos no Power BI
-* Comunicação clara de insights e recomendações
+* Construção de pipeline ETL em Python
+* Modelagem de métricas de negócio
+* Integração Python + MySQL
+* Estruturação de projeto orientado a portfólio
+* Organização de arquitetura de dados
+* Pensamento analítico aplicado a churn
 
 ---
 
 ## 🔮 Próximos Passos
 
-* Implementar modelo de Machine Learning para previsão de churn
-* Automatizar a carga dos dados em banco de dados
-* Integrar o pipeline em ambiente cloud
-* Expandir análises financeiras
+* Implementar modelo preditivo de churn
+* Automatizar carga incremental
+* Publicar dashboard interativo
+* Integrar pipeline em ambiente cloud
 
 ---
 
@@ -161,5 +172,8 @@ Com base nos dados analisados, algumas ações estratégicas seriam:
 **Daniel Fernandes**
 Estudante de Ciência da Computação | Analista de Dados em formação
 
-🔗 GitHub: https://github.com/DanielFS22
-🔗 LinkedIn: www.linkedin.com/in/danielfs22
+🔗 GitHub: [https://github.com/DanielFS22](https://github.com/DanielFS22)
+🔗 LinkedIn: [www.linkedin.com/in/danielfs22](http://www.linkedin.com/in/danielfs22)
+
+Amanhã a gente começa o Dia 05 — Power BI conectado ao MySQL 🚀
+```
