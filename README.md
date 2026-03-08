@@ -1,4 +1,4 @@
-# 📊 Customer Churn Analysis Using Python, SQL and Power BI
+# 📊 Customer Churn Analysis — Python · SQL · Flask · Chart.js
 
 ## 📌 Visão Geral
 
@@ -6,11 +6,12 @@ O cancelamento de clientes (churn) é um dos principais desafios enfrentados por
 
 Este projeto simula um cenário real de mercado onde atuo como **Analista de Dados**, responsável por:
 
-- Construção do pipeline de dados
-- Tratamento e consolidação das bases
-- Criação de métricas estratégicas
-- Persistência em banco relacional
-- Preparação da base para visualização executiva
+- Construção do pipeline de dados (ETL completo)
+- Tratamento e consolidação de múltiplas bases
+- Criação de métricas estratégicas de churn
+- Persistência em banco relacional MySQL
+- Desenvolvimento de API REST com Flask
+- Dashboard interativo web com visualizações dinâmicas
 
 ---
 
@@ -18,107 +19,130 @@ Este projeto simula um cenário real de mercado onde atuo como **Analista de Dad
 
 - Construir um pipeline completo de ETL utilizando Python
 - Consolidar múltiplas tabelas em uma visão única por cliente
-- Criar métricas estratégicas de churn
-- Persistir os dados em banco MySQL
-- Servir como base para um dashboard executivo no Power BI
+- Criar métricas estratégicas de churn (feature engineering)
+- Persistir os dados em banco MySQL via SQLAlchemy
+- Expor os dados através de uma API REST com Flask
+- Visualizar os dados em um dashboard web interativo com Chart.js
 
 ---
 
 ## 🏗️ Arquitetura do Projeto
 
 ```
+Raw CSVs → Python ETL → churn_processed.csv → MySQL → Flask API → Dashboard Web
+```
 
-Raw Data → Python (ETL & Feature Engineering) → Processed CSV → MySQL → Power BI (em desenvolvimento)
-
-````
-
-O projeto simula um fluxo corporativo real, onde os dados passam por tratamento automatizado antes de serem consumidos para análise.
+O projeto simula um fluxo corporativo real, onde os dados passam por tratamento automatizado antes de serem consumidos para análise e visualização.
 
 ---
 
 ## 🔄 Pipeline de Dados (Python + MySQL)
 
-Foi desenvolvido um pipeline completo em Python responsável pelas etapas de:
+Pipeline completo em Python responsável pelas etapas de:
 
 ### 1️⃣ Extração
-Leitura dos datasets brutos:
-- `customers`
-- `orders`
-- `payments`
-
----
+Leitura dos datasets brutos do e-commerce brasileiro (Olist):
+- `olist_customers_dataset.csv`
+- `olist_orders_dataset.csv`
+- `olist_order_payments_dataset.csv`
 
 ### 2️⃣ Transformação
 
-- Merge entre tabelas
+- Merge entre tabelas via `customer_id` e `order_id`
 - Conversão de colunas de data
-- Agregação por cliente
-- Criação de métricas estratégicas:
+- Agregação por cliente único
+- Feature engineering com métricas estratégicas:
 
-**Métricas criadas:**
-
-- `total_orders`
-- `total_revenue`
-- `last_purchase`
-- `days_since_last_purchase`
-- `average_ticket`
-- `churn` (regra de negócio: cliente com mais de 90 dias sem compra)
+| Métrica | Descrição |
+|---|---|
+| `total_orders` | Total de pedidos únicos por cliente |
+| `total_revenue` | Receita total gerada pelo cliente |
+| `last_purchase` | Data da última compra |
+| `days_since_last_purchase` | Dias desde a última compra |
+| `average_ticket` | Ticket médio por pedido |
+| `churn` | 1 se mais de 90 dias sem compra, 0 caso contrário |
 
 ```python
 churn = days_since_last_purchase > 90
-````
-
-Essa etapa simula o processo de **feature engineering aplicado a dados de negócio**.
-
----
+```
 
 ### 3️⃣ Carga (Load)
 
-* Geração do dataset tratado: `churn_processed.csv`
-* Inserção automatizada no MySQL
-* Validação da carga via query SQL
+- Geração do dataset tratado: `churn_processed.csv`
+- Inserção automatizada no MySQL via `mysql-connector`
+- Validação da carga via queries SQL
 
-Total de registros inseridos: **96.096**
-
-```sql
-SELECT COUNT(*) FROM customers_churn;
-```
+Total de registros inseridos: **96.096 clientes**
 
 ---
 
-## 🗄️ Banco de Dados
+## 🌐 API REST (Flask + SQLAlchemy)
 
-Banco: `churn_project`
-Tabela: `customers_churn`
+Backend desenvolvido com Flask expondo os dados via endpoints REST:
 
-A tabela é alimentada diretamente pelo script Python via conexão MySQL, simulando um fluxo de dados empresarial com persistência relacional.
+| Endpoint | Descrição |
+|---|---|
+| `GET /` | Serve o dashboard web |
+| `GET /clientes_total` | Total de clientes na base |
+| `GET /churn_rate` | Taxa de churn, total e percentual |
+| `GET /churn` | Distribuição ativo vs churn |
+| `GET /receita_media` | Receita média por cliente |
+| `GET /ticket_medio` | Ticket médio por pedido |
+| `GET /segmento` | Churn rate por segmento de cliente |
+| `GET /distribuicao_dias` | Clientes por faixa de dias sem compra |
+
+A conexão com o banco é feita via **SQLAlchemy**, eliminando os warnings do pandas e garantindo compatibilidade total com `pd.read_sql`.
+
+---
+
+## 📊 Dashboard Web (HTML · CSS · JavaScript · Chart.js)
+
+Interface interativa dark theme com **duas abas**:
+
+### Aba Dashboard
+- 5 KPI cards — Total de Clientes, Em Churn, Churn Rate, Receita Média e Ticket Médio
+- Gráfico de rosca — Distribuição Ativo vs Churn
+- Gráfico de barras — Churn Rate por Segmento (com cores dinâmicas de risco)
+- Gráfico de barras — Distribuição por faixa de dias sem compra
+- Gráfico de barras — Total de clientes por segmento
+- Tabela com badges de status por segmento (Estável / Atenção / Crítico)
+
+### Aba Explorador de Dados
+- Gerador de gráfico dinâmico — escolha a fonte de dados, métrica e tipo de visualização
+- Painel de resumo com todos os KPIs em cards
+- Tabela comparativa de segmentos com barra de risco visual proporcional
 
 ---
 
 ## 📂 Estrutura do Projeto
 
 ```text
-customer-churn-analysis/
+Customer-Churn-Analysis/
 │
 ├── data/
 │   ├── raw/
-│   │   ├── customers.csv
-│   │   ├── orders.csv
-│   │   └── payments.csv
-│   │
+│   │   ├── olist_customers_dataset.csv
+│   │   ├── olist_orders_dataset.csv
+│   │   └── olist_order_payments_dataset.csv
 │   └── processed/
 │       └── churn_processed.csv
 │
 ├── scripts/
-│   ├── data_pipeline.py
-│   └── database.py
+│   ├── data_pipeline.py        # ETL completo
+│   └── database.py             # Conexão MySQL
 │
-├── sql/
-│   └── validation_queries.sql
+├── SQL/
+│   ├── create_table.sql        # Schema da tabela
+│   ├── analysis_queries.sql    # Queries analíticas
+│   └── validation_queries.sql  # Validação da carga
 │
-├── dashboard/
-│   └── churn_dashboard.pbix (em desenvolvimento)
+├── Dashboard/
+│   ├── app.py                  # API Flask + SQLAlchemy
+│   ├── index.html              # Dashboard web
+│   ├── style.css               # Dark theme
+│   └── script.js               # Lógica e gráficos
 │
+├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
@@ -127,43 +151,64 @@ customer-churn-analysis/
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **Python (pandas)** — ETL e feature engineering
-* **MySQL** — Persistência relacional
-* **SQL** — Validação e consultas analíticas
-* **MySQL Workbench** — Gerenciamento do banco
-* **Power BI** — Visualização executiva (em desenvolvimento)
-* **Git & GitHub** — Versionamento
+| Tecnologia | Uso |
+|---|---|
+| **Python · pandas** | ETL e feature engineering |
+| **MySQL** | Persistência relacional |
+| **SQLAlchemy** | Conexão segura com o banco |
+| **Flask · flask-cors** | API REST e servidor web |
+| **HTML · CSS · JavaScript** | Dashboard interativo |
+| **Chart.js** | Visualizações dinâmicas |
+| **SQL** | Queries analíticas e validação |
+| **Git · GitHub** | Versionamento |
 
 ---
 
-## 📊 Próxima Etapa: Visualização
+## 🚀 Como Rodar o Projeto
 
-O próximo passo do projeto é conectar o Power BI diretamente ao banco MySQL para:
+**1. Instalar dependências:**
+```bash
+pip install -r requirements.txt
+```
 
-* Construir KPIs estratégicos
-* Criar visão executiva de churn
-* Analisar perfis de risco
-* Simular tomada de decisão orientada a dados
+**2. Garantir que o MySQL está rodando** com o banco `churn_project` populado (rodar `data_pipeline.py` se necessário).
+
+**3. Iniciar o servidor Flask:**
+```bash
+cd Dashboard
+python app.py
+```
+
+**4. Abrir no navegador:**
+```
+http://127.0.0.1:5000
+```
+
+> ⚠️ Sempre acesse pelo endereço Flask — nunca abra o `index.html` diretamente no navegador, pois o CORS bloqueará as requisições.
 
 ---
 
 ## 💡 Competências Demonstradas
 
-* Construção de pipeline ETL em Python
-* Modelagem de métricas de negócio
-* Integração Python + MySQL
-* Estruturação de projeto orientado a portfólio
-* Organização de arquitetura de dados
-* Pensamento analítico aplicado a churn
+- Pipeline ETL completo em Python
+- Feature engineering aplicada a dados de negócio
+- Modelagem de métricas estratégicas (churn, ticket médio, segmentação)
+- Integração Python + MySQL + SQLAlchemy
+- Desenvolvimento de API REST com Flask
+- Construção de dashboard web interativo do zero
+- Visualização de dados com Chart.js
+- Organização de projeto orientado a portfólio
+- Versionamento com Git e boas práticas de repositório
 
 ---
 
 ## 🔮 Próximos Passos
 
-* Implementar modelo preditivo de churn
-* Automatizar carga incremental
-* Publicar dashboard interativo
-* Integrar pipeline em ambiente cloud
+- [ ] Implementar modelo preditivo de churn (Machine Learning)
+- [ ] Adicionar autenticação na API
+- [ ] Automatizar carga incremental de dados
+- [ ] Deploy em ambiente cloud (Heroku / Railway / Render)
+- [ ] Implementar testes automatizados
 
 ---
 
@@ -172,8 +217,5 @@ O próximo passo do projeto é conectar o Power BI diretamente ao banco MySQL pa
 **Daniel Fernandes**
 Estudante de Ciência da Computação | Analista de Dados em formação
 
-🔗 GitHub: [https://github.com/DanielFS22](https://github.com/DanielFS22)
-🔗 LinkedIn: [www.linkedin.com/in/danielfs22](http://www.linkedin.com/in/danielfs22)
-
-Amanhã a gente começa o Dia 05 — Power BI conectado ao MySQL 🚀
-```
+🔗 GitHub: [github.com/DanielFS22](https://github.com/DanielFS22)
+🔗 LinkedIn: [linkedin.com/in/danielfs22](https://www.linkedin.com/in/danielfs22)
