@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Churn Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-badge">📊</div>
+        <div>
+          <h1>Churn <span>Analytics</span></h1>
+          <div class="subtitle">Customer Retention Intelligence</div>
+        </div>
+      </div>
+      <div class="status-badge" id="statusBadge">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">conectando...</span>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="explorador">Explorador de Dados</button>
+    </nav>
+  </header>
+
+  <!-- ══════════════════════════════════
+       TAB 1 — DASHBOARD
+  ══════════════════════════════════ -->
+  <div id="tab-dashboard" class="tab-content active">
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total de Clientes</div>
+        <div class="kpi-value blue" id="val-total"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="kpi-sub">base total cadastrada</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Clientes em Churn</div>
+        <div class="kpi-value red" id="val-churn"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="kpi-sub">sem compra há mais de 90 dias</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Churn Rate</div>
+        <div class="kpi-value yellow" id="val-rate"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="kpi-sub" id="sub-rate">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Receita Média / Cliente</div>
+        <div class="kpi-value green" id="val-receita"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="kpi-sub">média geral da base</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ticket Médio</div>
+        <div class="kpi-value purple" id="val-ticket"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="kpi-sub">por pedido realizado</div>
+      </div>
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Distribuição de Churn</span>
+          <span class="chart-tag">pizza</span>
+        </div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Churn Rate por Segmento</span>
+          <span class="chart-tag">%</span>
+        </div>
+        <div class="chart-wrap"><canvas id="segChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Distribuição por Dias sem Compra</span>
+          <span class="chart-tag">clientes</span>
+        </div>
+        <div class="chart-wrap"><canvas id="diasChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Clientes por Segmento</span>
+          <span class="chart-tag">total</span>
+        </div>
+        <div class="chart-wrap"><canvas id="segTotalChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- TABELA SEGMENTOS -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Detalhamento por Segmento</span>
+        <span class="chart-tag">breakdown</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Segmento</th>
+            <th>Total Clientes</th>
+            <th>Em Churn</th>
+            <th>Taxa de Churn</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="seg-tbody">
+          <tr><td colspan="5"><div class="loading"><div class="spinner"></div><span>Carregando...</span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-dashboard -->
+
+
+  <!-- ══════════════════════════════════
+       TAB 2 — EXPLORADOR DE DADOS
+  ══════════════════════════════════ -->
+  <div id="tab-explorador" class="tab-content">
+
+    <div class="explorer-top">
+
+      <!-- GERADOR DE GRÁFICO -->
+      <div class="panel">
+        <div class="panel-title">📈 Gerador de Gráfico</div>
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>Dados</label>
+            <select id="g-fonte">
+              <option value="segmento">Churn por Segmento</option>
+              <option value="dias">Distribuição por Dias</option>
+              <option value="churn">Ativo vs Churn</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Tipo de Gráfico</label>
+            <select id="g-tipo">
+              <option value="bar">Barras</option>
+              <option value="doughnut">Rosca</option>
+              <option value="line">Linha</option>
+              <option value="polarArea">Polar</option>
+            </select>
+          </div>
+          <div class="filter-group" style="justify-content:flex-end">
+            <label>&nbsp;</label>
+            <button class="btn-primary" onclick="gerarGrafico()">Gerar</button>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:260px; margin-top:1rem">
+          <canvas id="explorerChart"></canvas>
+        </div>
+      </div>
+
+      <!-- PAINEL DE RESUMO RÁPIDO -->
+      <div class="panel">
+        <div class="panel-title">🔢 Resumo Rápido</div>
+        <div class="summary-grid" id="summaryGrid">
+          <div class="loading"><div class="spinner"></div><span>Carregando...</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COMPARATIVO DE SEGMENTOS -->
+    <div class="table-card" style="margin-top:1.5rem">
+      <div class="table-header">
+        <span class="table-title">Comparativo de Segmentos</span>
+        <span class="chart-tag">análise</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Segmento</th>
+            <th>Total</th>
+            <th>Churn</th>
+            <th>Taxa</th>
+            <th>Barra de Risco</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="comp-tbody">
+          <tr><td colspan="6"><div class="loading"><div class="spinner"></div><span>Carregando...</span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-explorador -->
+
+  <footer>
+    Developed by
+    <a href="https://github.com/DanielFS22" target="_blank">Daniel Fernandes</a>
+    &nbsp;·&nbsp; Python · MySQL · Flask · Chart.js
+  </footer>
+
+</div><!-- /container -->
+
+<script src="script.js"></script>
+</body>
+</html>

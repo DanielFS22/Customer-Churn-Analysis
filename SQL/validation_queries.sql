@@ -6,7 +6,7 @@ FROM customers_churn;
 SELECT
     churn,
     COUNT(*) AS total,
-    ROUND(COUNT(*) * 100.0 / (SELECT COUNT (*) customers_churn), 2) AS percentage
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT (*) FROM customers_churn), 2) AS percentage
     FROM customers_churn
     GROUP BY churn;
 
