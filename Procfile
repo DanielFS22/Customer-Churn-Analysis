@@ -1,1 +1,1 @@
-web: gunicorn --chdir Dashboard app:app
+worker: python data_pipeline_railway.py
