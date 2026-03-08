@@ -1,0 +1,1 @@
+web: gunicorn --chdir Dashboard app:app
