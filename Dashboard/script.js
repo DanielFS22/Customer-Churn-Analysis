@@ -3,7 +3,8 @@
    Consome todas as rotas do app.py
    ═══════════════════════════════════════ */
 
-const BASE = 'http://127.0.0.1:5000';
+// BASE vazio = usa o mesmo domínio (funciona local e em produção)
+const BASE = '';
 
 Chart.defaults.color         = '#6b7280';
 Chart.defaults.borderColor   = '#252a3a';
@@ -115,7 +116,7 @@ async function iniciarDashboard() {
     });
 
     /* ── Gráfico Barras — Churn Rate por Segmento ── */
-    segData = segmData; // cache para o explorador
+    segData = segmData;
     new Chart(document.getElementById('segChart'), {
       type: 'bar',
       data: {
@@ -242,7 +243,6 @@ async function iniciarDashboard() {
         <td>${badgeStatus(d.taxa_churn)}</td>
       </tr>`).join('');
 
-    /* gerar gráfico inicial do explorador */
     gerarGrafico();
 
   } catch (err) {

@@ -1,7 +1,7 @@
-import os
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from sqlalchemy import create_engine, text
+import os
 
 app = Flask(__name__, static_folder=os.path.dirname(os.path.abspath(__file__)))
 CORS(app)
